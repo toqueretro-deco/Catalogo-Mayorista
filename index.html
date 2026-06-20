@@ -1,0 +1,173 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toque Retro - Catalogo Mayorista</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--negro:#111;--crema:#f5f0e8;--rojo:#c0392b;--dorado:#c9a84c;--gris:#888;--borde:#ddd8cc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--crema);color:var(--negro);font-family:'DM Sans',sans-serif}
+header{background:var(--negro);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--dorado)}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--crema);letter-spacing:2px}
+.logo span{color:var(--dorado)}
+.badge{font-size:11px;color:var(--dorado);border:1px solid var(--dorado);padding:3px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.carrito-btn{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--rojo);color:#fff;border:none;border-radius:50px;padding:14px 22px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.carrito-btn.oculto{display:none}
+.count{background:#fff;color:var(--rojo);border-radius:50%;width:22px;height:22px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.controles{padding:12px 16px;background:#fff;border-bottom:1px solid var(--borde);position:sticky;top:67px;z-index:90;display:flex;gap:8px;align-items:center}
+.busqueda{flex:1;padding:9px 14px;font-size:14px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;background:var(--crema);color:var(--negro)}
+.busqueda:focus{outline:none;border-color:var(--dorado)}
+.cat-select{padding:9px 12px;font-size:13px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;background:var(--crema);color:var(--negro);cursor:pointer;min-width:130px;max-width:160px}
+.cat-select:focus{outline:none;border-color:var(--dorado)}
+.contador{padding:8px 16px;font-size:12px;color:var(--gris)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:12px 16px 100px}
+.card{background:#fff;border-radius:10px;border:1.5px solid var(--borde);overflow:hidden}
+.card.en-pedido{border-color:var(--rojo);border-width:2px}
+.card-img-wrap{width:100%;aspect-ratio:1;background:var(--crema);display:flex;align-items:center;justify-content:center;cursor:zoom-in;overflow:hidden}
+.card-img{width:100%;height:100%;object-fit:contain;display:block;transition:transform .2s}
+.card-img-wrap:hover .card-img{transform:scale(1.05)}
+.card-body{padding:8px 10px 10px}
+.card-codigo{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px}
+.card-cat{font-size:11px;color:var(--gris);margin-top:1px;margin-bottom:7px}
+.medidas{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+.med{font-size:10px;padding:3px 7px;border-radius:4px;border:1px solid var(--borde);background:var(--crema);color:var(--gris);cursor:pointer}
+.med.sel{background:var(--negro);color:var(--crema);border-color:var(--negro)}
+.cant-row{display:flex;align-items:center;gap:6px;margin-bottom:7px}
+.cant-label{font-size:11px;color:var(--gris)}
+.cant-btn{width:24px;height:24px;border-radius:50%;border:1px solid var(--borde);background:var(--crema);color:var(--negro);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;line-height:1}
+.cant-num{font-size:13px;font-weight:500;min-width:20px;text-align:center}
+.btn-agregar{width:100%;padding:6px;font-size:12px;font-weight:500;border-radius:6px;border:1.5px solid var(--borde);background:var(--crema);color:var(--negro);cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-agregar.agregado{background:var(--rojo);color:#fff;border-color:var(--rojo)}
+.visor{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.9);align-items:center;justify-content:center;cursor:zoom-out}
+.visor.visible{display:flex}
+.visor img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px}
+.visor-cerrar{position:absolute;top:20px;right:24px;color:#fff;font-size:32px;cursor:pointer;background:none;border:none;line-height:1}
+.overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);align-items:flex-end}
+.overlay.visible{display:flex}
+.modal{background:#fff;width:100%;max-width:540px;margin:0 auto;border-radius:16px 16px 0 0;padding:24px 20px 32px;max-height:90vh;overflow-y:auto}
+.modal h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:16px}
+.pedido-lista{list-style:none;margin-bottom:20px}
+.pedido-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--borde);font-size:14px}
+.pedido-item strong{font-family:'Bebas Neue',sans-serif;font-size:16px}
+.pedido-cant{display:flex;align-items:center;gap:6px}
+.pedido-cant button{width:22px;height:22px;border-radius:50%;border:1px solid var(--borde);background:var(--crema);cursor:pointer;font-size:13px}
+.btn-quitar{background:none;border:none;color:var(--gris);cursor:pointer;font-size:18px;padding:0 4px}
+/* FORMULARIO DATOS */
+.form-datos{background:var(--crema);border-radius:10px;padding:16px;margin-bottom:20px;border:1px solid var(--borde)}
+.form-datos h3{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;margin-bottom:12px;color:var(--negro)}
+.form-campo{margin-bottom:10px}
+.form-campo label{display:block;font-size:12px;color:var(--gris);margin-bottom:4px}
+.form-campo input{width:100%;padding:9px 12px;font-size:14px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;background:#fff;color:var(--negro)}
+.form-campo input:focus{outline:none;border-color:var(--dorado)}
+.form-campo input.error{border-color:var(--rojo)}
+.btn-wsp{width:100%;padding:14px;font-size:16px;font-weight:500;background:#25D366;color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-cerrar{width:100%;padding:10px;font-size:14px;background:none;border:1.5px solid var(--borde);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--gris);margin-top:10px}
+.vacio{text-align:center;color:var(--gris);padding:32px 0;font-size:14px}
+.error-msg{font-size:12px;color:var(--rojo);margin-top:4px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Toque <span>Retro</span></div>
+  <div class="badge">Mayoristas</div>
+</header>
+<div class="controles">
+  <input class="busqueda" type="text" placeholder="Buscar codigo..." id="busqueda" oninput="filtrar()">
+  <select class="cat-select" id="catSelect" onchange="setcat(this.value)">
+    <option value="Todas">Todas las categorias</option>
+  </select>
+</div>
+<div class="contador" id="contador"></div>
+<div class="grid" id="grid"></div>
+<button class="carrito-btn oculto" id="carritoBtn" onclick="abrirModal()">
+  Ver pedido <span class="count" id="carritoCount">0</span>
+</button>
+<div class="visor" id="visor" onclick="cerrarVisor()">
+  <button class="visor-cerrar" onclick="cerrarVisor()">x</button>
+  <img id="visorImg" src="" alt="">
+</div>
+<div class="overlay" id="overlay" onclick="cerrarSiAfuera(event)">
+  <div class="modal">
+    <h2>Tu pedido</h2>
+    <ul class="pedido-lista" id="pedidoLista"></ul>
+    <div class="form-datos">
+      <h3>Tus datos para el pedido</h3>
+      <div class="form-campo">
+        <label>Nombre y apellido *</label>
+        <input type="text" id="fNombre" placeholder="Juan Perez">
+      </div>
+      <div class="form-campo">
+        <label>Celular *</label>
+        <input type="tel" id="fCelular" placeholder="341 555 1234">
+      </div>
+      <div class="form-campo">
+        <label>Email</label>
+        <input type="email" id="fEmail" placeholder="juan@gmail.com">
+      </div>
+      <div id="errorMsg" class="error-msg"></div>
+    </div>
+    <button class="btn-wsp" onclick="enviarWsp()">Enviar pedido por WhatsApp</button>
+    <button class="btn-cerrar" onclick="cerrarModal()">Seguir eligiendo</button>
+  </div>
+</div>
+<script>
+const WA_NUM='5493417420627';
+const CSV_URL='https://docs.google.com/spreadsheets/d/14NyISvqkk5oQ3UMB6AFFuIilvxJRp3Vo5v1vY92abkA/export?format=csv&gid=1308083135';
+const MEDIDAS_CAT={'Locomocion':['10x14 cm','15x20 cm','21x28 cm'],'Personajes de cine':['10x14 cm','15x20 cm','21x28 cm'],'Comics':['10x14 cm','15x20 cm','21x28 cm'],'Bebidas y comidas':['10x14 cm','15x20 cm','21x28 cm'],'Bandas y artistas':['10x14 cm','15x20 cm','21x28 cm'],'Calendarios':['10x14 cm','15x20 cm','21x28 cm'],'Frases':['10x14 cm','15x20 cm','21x28 cm'],'Caza y Pesca':['10x14 cm','15x20 cm','21x28 cm'],'Deportes':['10x14 cm','15x20 cm','21x28 cm'],'Argentina':['10x14 cm','15x20 cm','21x28 cm'],'Viajes':['10x14 cm','15x20 cm','21x28 cm'],'Barberia y Tatoo':['10x14 cm','15x20 cm','21x28 cm'],'Deco-vintage':['10x14 cm','15x20 cm','21x28 cm'],'Tutores':['10x14 cm','15x20 cm','21x28 cm'],'Figuras':['10x14 cm','15x20 cm','21x28 cm'],'Chapas con Forma':['10x14 cm','15x20 cm','21x28 cm'],'Percheros':['10x14 cm','15x20 cm','21x28 cm'],'Cajon estampado':['10x14 cm','15x20 cm','21x28 cm'],'Alcancias':['10x14 cm','15x20 cm','21x28 cm'],'Destapadores':['10x14 cm','15x20 cm','21x28 cm'],'Cajones Multiuso':['10x14 cm','15x20 cm','21x28 cm'],'Chapa Cuadrada':['21x21 cm','30x30 cm'],'Chapas Alargadas':['20x7 cm','10.5x28 cm','44x16 cm'],'Patentes':['28x14 cm'],'Tapas 3D':['29cm diametro'],'Chapas XL':['Chapon Mini XL','Chapon XL','Chapon XXL']};
+function parseCSV(text){const lines=text.split('\n');const headers=parseLine(lines[0]);const rows=[];for(let i=1;i<lines.length;i++){if(!lines[i].trim())continue;const vals=parseLine(lines[i]);if(vals.length<2)continue;const obj={};headers.forEach((h,idx)=>obj[h.trim()]=(vals[idx]||'').trim());rows.push(obj);}return rows;}
+function parseLine(line){const result=[];let cur='';let inQ=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;}else if(ch===','&&!inQ){result.push(cur);cur='';}else{cur+=ch;}}result.push(cur);return result;}
+let productos=[],selMedida={},cantidades={},pedido={},catActiva='Todas';
+async function cargarDatos(){
+document.getElementById('grid').innerHTML='<div class="vacio" style="grid-column:1/-1;padding:60px">Cargando catalogo...</div>';
+try{
+const resp=await fetch(CSV_URL);
+if(!resp.ok)throw new Error();
+const text=await resp.text();
+productos=parseCSV(text).filter(p=>p.codigo&&p.codigo.length>0&&p.activo!=='NO');
+renderCats();filtrar();
+}catch(e){
+document.getElementById('grid').innerHTML='<div class="vacio" style="grid-column:1/-1;padding:40px">Error al cargar.<br><br><button onclick="cargarDatos()" style="padding:8px 16px;cursor:pointer">Reintentar</button></div>';
+}}
+function renderCats(){const cats=[...new Set(productos.map(p=>p.categoria).filter(Boolean))];const sel=document.getElementById('catSelect');sel.innerHTML='<option value="Todas">Todas las categorias</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');sel.value=catActiva;}
+function setcat(c){catActiva=c;filtrar();}
+function filtrar(){const q=document.getElementById('busqueda').value.toLowerCase();const vis=productos.filter(p=>{const mc=catActiva==='Todas'||p.categoria===catActiva;const mq=!q||(p.codigo||'').toLowerCase().includes(q)||(p.categoria||'').toLowerCase().includes(q);return mc&&mq;});document.getElementById('contador').textContent=vis.length+' carteles';renderGrid(vis);}
+function getCant(codigo){return cantidades[codigo]||1;}
+function setCant(codigo,val){const n=Math.max(1,parseInt(val)||1);cantidades[codigo]=n;const el=document.getElementById('cant-'+codigo.replace(/[^a-z0-9]/gi,'_'));if(el)el.textContent=n;}
+function abrirVisor(url){document.getElementById('visorImg').src=url;document.getElementById('visor').classList.add('visible');}
+function cerrarVisor(){document.getElementById('visor').classList.remove('visible');document.getElementById('visorImg').src='';}
+function renderGrid(lista){const g=document.getElementById('grid');if(!lista.length){g.innerHTML='<div class="vacio" style="grid-column:1/-1">No hay resultados</div>';return;}g.innerHTML=lista.map(p=>{const cat=p.categoria||'';const medidas=MEDIDAS_CAT[cat]||['21x28 cm'];const selMed=selMedida[p.codigo]||medidas[0];const key=p.codigo+'|'+selMed;const enPedido=!!pedido[key];const cant=getCant(p.codigo);const cid=p.codigo.replace(/[^a-z0-9]/gi,'_');const imgGrande=p.url_imagen_grande||p.url_miniatura||'';const imgMin=p.url_miniatura||'';return `<div class="card ${enPedido?'en-pedido':''}"><div class="card-img-wrap" onclick="abrirVisor('${imgGrande}')"><img class="card-img" src="${imgMin}" alt="${p.codigo}" loading="lazy" onerror="this.style.opacity='0.1'"></div><div class="card-body"><div class="card-codigo">${p.codigo}</div><div class="card-cat">${cat}</div><div class="medidas">${medidas.map(m=>`<span class="med ${m===selMed?'sel':''}" onclick="elegirMed('${p.codigo}','${m}')">${m}</span>`).join('')}</div><div class="cant-row"><span class="cant-label">Cant:</span><button class="cant-btn" onclick="setCant('${p.codigo}',${cant}-1)">-</button><span class="cant-num" id="cant-${cid}">${cant}</span><button class="cant-btn" onclick="setCant('${p.codigo}',${cant}+1)">+</button></div><button class="btn-agregar ${enPedido?'agregado':''}" onclick="togglePedido('${p.codigo}','${cat}')">${enPedido?'Agregado':'+ Agregar'}</button></div></div>`;}).join('');}
+function elegirMed(codigo,med){selMedida[codigo]=med;filtrar();}
+function togglePedido(codigo,cat){const med=selMedida[codigo]||(MEDIDAS_CAT[cat]||['21x28 cm'])[0];const key=codigo+'|'+med;const cant=getCant(codigo);if(pedido[key])delete pedido[key];else pedido[key]={codigo,cat,med,cant};actualizarCarrito();filtrar();}
+function actualizarCarrito(){const n=Object.keys(pedido).length;document.getElementById('carritoCount').textContent=n;document.getElementById('carritoBtn').classList.toggle('oculto',n===0);}
+function cambiarCantPedido(key,delta){if(!pedido[key])return;pedido[key].cant=Math.max(1,pedido[key].cant+delta);abrirModal();}
+function abrirModal(){
+const items=Object.values(pedido);
+document.getElementById('pedidoLista').innerHTML=items.length?items.map(i=>`<li class="pedido-item"><div><strong>${i.codigo}</strong><br><span style="font-size:12px;color:#888">${i.cat} - ${i.med}</span></div><div class="pedido-cant"><button onclick="cambiarCantPedido('${i.codigo}|${i.med}',-1)">-</button><span style="font-size:13px;font-weight:500;min-width:20px;text-align:center">${i.cant}</span><button onclick="cambiarCantPedido('${i.codigo}|${i.med}',1)">+</button><button class="btn-quitar" onclick="quitarItem('${i.codigo}','${i.med}')">x</button></div></li>`).join(''):'<div class="vacio">No agregaste ningun cartel todavia.</div>';
+document.getElementById('overlay').classList.add('visible');
+}
+function quitarItem(codigo,med){delete pedido[codigo+'|'+med];actualizarCarrito();abrirModal();filtrar();}
+function cerrarModal(){document.getElementById('overlay').classList.remove('visible');}
+function cerrarSiAfuera(e){if(e.target===document.getElementById('overlay'))cerrarModal();}
+function enviarWsp(){
+const items=Object.values(pedido);
+if(!items.length){document.getElementById('errorMsg').textContent='Agrega al menos un cartel al pedido.';return;}
+const nombre=document.getElementById('fNombre').value.trim();
+const celular=document.getElementById('fCelular').value.trim();
+const email=document.getElementById('fEmail').value.trim();
+document.getElementById('fNombre').classList.remove('error');
+document.getElementById('fCelular').classList.remove('error');
+document.getElementById('errorMsg').textContent='';
+if(!nombre){document.getElementById('fNombre').classList.add('error');document.getElementById('errorMsg').textContent='Por favor ingresa tu nombre.';return;}
+if(!celular){document.getElementById('fCelular').classList.add('error');document.getElementById('errorMsg').textContent='Por favor ingresa tu celular.';return;}
+const lineas=items.map(i=>`* ${i.codigo} - ${i.med} - cantidad: ${i.cant}`).join('\n');
+const emailLinea=email?`\nEmail: ${email}`:'';
+const msg=encodeURIComponent(`Hola Toque Retro, quiero cotizar:\n\nNombre: ${nombre}\nCelular: ${celular}${emailLinea}\n\n${lineas}\n\nQuedo a la espera. Gracias!`);
+window.open(`https://wa.me/${WA_NUM}?text=${msg}`,'_blank');
+}
+cargarDatos();
+</script>
+</body>
+</html>
